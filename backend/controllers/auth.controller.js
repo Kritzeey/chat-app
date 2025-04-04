@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import generateToken from "../utils/token.js";
 
 export async function signUp(req, res) {
     try {
@@ -27,11 +28,17 @@ export async function signUp(req, res) {
             profilePicture: profilePic,
         });
 
-        await newUser.save();
+        if (newUser) {
+            generateToken(newUser._id, res);
 
-        res.status(201).json(newUser);
+            await newUser.save();
+
+            res.status(201).json(newUser);
+        } else {
+            res.status(400).json({ error: "Invalid user data" });
+        }
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" })
+        res.status(500).json({ error: "Internal server error" });
     }
 }
 
