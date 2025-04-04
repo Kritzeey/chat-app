@@ -43,7 +43,28 @@ export async function signUp(req, res) {
 }
 
 export async function signIn(req, res) {
-    res.send("signin");
+    try {
+        const { username, password } = req.body;
+
+        const user = await User.findOne({ username });
+
+        const correct = await bcrypt.compare(password, user?.password || "");
+
+        if (!user || !correct) {
+            res.status(400).json({ error: "Invalid credentials" })
+        };
+
+        generateToken(user._id, res);
+
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            username: user.username,
+            profilePicture: user.profilePicture,
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error" });
+    }
 }
 
 export async function signOut(req, res) {
