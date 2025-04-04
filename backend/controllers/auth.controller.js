@@ -68,5 +68,10 @@ export async function signIn(req, res) {
 }
 
 export async function signOut(req, res) {
-    res.send("signout");
+    try {
+        res.cookie("jwt", "", { maxAge: 0 });
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error" });
+    }
 }
